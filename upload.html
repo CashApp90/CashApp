@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Profile Picture</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 40px;
+      max-width: 400px;
+      margin: auto;
+      text-align: center;
+    }
+    input, button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+    }
+    img {
+      margin-top: 20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Upload Profile Picture</h2>
+  <input type="file" id="fileInput" accept="image/*">
+  <button id="uploadBtn">Upload</button>
+  <p id="status"></p>
+  <img id="preview" alt="Profile Preview">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+  <script>
+    // 🔒 Masked config for display purposes only
+    const maskedFirebaseConfig = {
+      apiKey: "AIzaSyBCcfDjz_H6zaM7pIZ...", // 🔒
+      authDomain: "authentication4-269a9.firebaseapp.com",
+      projectId: "authentication4-269a9",
+      storageBucket: "authentication4-269a9.firebasestorage.app",
+      messagingSenderId: "7608673...", // 🔒
+      appId: "1:760867333584:web:01e91c5...", // 🔒
+      measurementId: "G-ZQ310Y..." // 🔒
+    };
+
+    // ✅ Real config (used by Firebase, don’t show publicly)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCcfDjz_H6zaM7pIZl_bG60WnARHxo2WY",
+      authDomain: "authentication4-269a9.firebaseapp.com",
+      projectId: "authentication4-269a9",
+      storageBucket: "authentication4-269a9.firebasestorage.app",
+      messagingSenderId: "760867333584",
+      appId: "1:760867333584:web:01e91c5747b86f843005d5",
+      measurementId: "G-ZQ310YV9WE"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const fileInput = document.getElementById("fileInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const status = document.getElementById("status");
+    const preview = document.getElementById("preview");
+
+    uploadBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        status.textContent = "Please choose a file first.";
+        return;
+      }
+
+      status.textContent = "Uploading...";
+
+      // Convert to Base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result;
+
+        try {
+          await db.collection("user_photos").doc("globalProfile").set({
+            image: base64String
+          });
+
+          status.textContent = "Uploaded successfully ✅";
+          preview.src = base64String;
+          preview.style.display = "block";
+        } catch (error) {
+          console.error(error);
+          status.textContent = "Upload failed ❌";
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>
